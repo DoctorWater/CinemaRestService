@@ -1,13 +1,16 @@
-package cinema;
+package cinema.DTO;
+
+import cinema.Enities.Room;
+import cinema.Enities.Seat;
 
 import java.util.ArrayList;
 
-public class WholeRoomDTO {
-    private final int total_rows;
-    private final int total_columns;
+public class RoomDTO {
+    private final int total_rows; //this notation is required by the task
+    private final int total_columns; //this notation is required by the task
     private final ArrayList<Seat> available_seats;
 
-    public WholeRoomDTO(Room room) {
+    public RoomDTO(Room room) {
         this.total_rows = room.getRowsNumber();
         this.total_columns = room.getColumnsNumber();
         this.available_seats = room.getAvailableSeats();

@@ -1,21 +1,26 @@
 package cinema;
 
+import cinema.Enities.Room;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+
 
 @SpringBootApplication
-
+@Configuration
 public class Main {
-    private static WholeRoomDTO responseObject;
-    private static Room room;
     public static void main(String[] args) {
         SpringApplication.run(Main.class, args);
-        room = new Room(9,9);
-        responseObject = new WholeRoomDTO(room);
     }
 
-    public static WholeRoomDTO getResponseObject(){
-        return responseObject;
+
+    public Room createRoom(){
+        return new Room(9,9);
     }
-    public static Room getRoom(){ return room;}
+
+    @Bean
+    public CinemaService cinemaService(){
+        return new CinemaService(createRoom());
+    }
 }

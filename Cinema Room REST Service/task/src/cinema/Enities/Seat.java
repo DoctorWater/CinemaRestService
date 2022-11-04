@@ -1,4 +1,4 @@
-package cinema;
+package cinema.Enities;
 
 public class Seat {
     private int row;

@@ -390,6 +390,523 @@ files:
         };
     }
   learner_created: false
+- name: src/cinema/RESTController.java
+  visible: true
+  text: |
+    package cinema;
+
+    import cinema.DTO.*;
+    import cinema.Enities.Seat;
+    import cinema.Enities.Ticket;
+    import cinema.Exceptions.MethodArgumentNullException;
+    import cinema.Exceptions.OrderWasNotFoundException;
+    import cinema.Exceptions.TicketBuyingException;
+    import com.google.gson.Gson;
+    import com.google.gson.GsonBuilder;
+    import org.springframework.http.HttpStatus;
+    import org.springframework.web.bind.annotation.*;
+
+    import java.util.UUID;
+
+    @RestController
+    public class RESTController {
+        private final CinemaService cinemaService;
+
+        public RESTController(CinemaService cinemaService) {
+            this.cinemaService = cinemaService;
+        }
+
+        @GetMapping("/seats")
+        public String getSeats() {
+            Gson gson = new GsonBuilder().setPrettyPrinting().create();
+            return gson.toJson(cinemaService.getRoomDTO());
+        }
+
+        @PostMapping("/purchase")
+        public String sellSeats(@RequestBody UserInfo request) throws TicketBuyingException, MethodArgumentNullException {
+            int row = request.getRow();
+            int column = request.getColumn();
+            Gson gson = new GsonBuilder().setPrettyPrinting().create();
+            return gson.toJson(cinemaService.bookSeat(row, column));
+        }
+
+        @PostMapping("/return")
+        public String returnTicket(@RequestBody TicketReturnRequestDTO requestDTO) throws OrderWasNotFoundException {
+            Gson gson = new GsonBuilder().setPrettyPrinting().create();
+            TicketReturnResponseDTO response = cinemaService.unbookSeat(requestDTO.getToken());
+            return gson.toJson(response);
+        }
+
+        @ExceptionHandler(value = TicketBuyingException.class)
+        @ResponseStatus(HttpStatus.BAD_REQUEST)
+        public @ResponseBody String handleException(TicketBuyingException e) {
+            Gson gson = new GsonBuilder().setPrettyPrinting().create();
+            return gson.toJson(new ExceptionResponseDTO(e.getMessage()));
+        }
+
+        @ExceptionHandler(value = OrderWasNotFoundException.class)
+        @ResponseStatus(HttpStatus.BAD_REQUEST)
+        public @ResponseBody String handleException(OrderWasNotFoundException e) {
+            Gson gson = new GsonBuilder().setPrettyPrinting().create();
+            return gson.toJson(new ExceptionResponseDTO(e.getMessage()));
+        }
+    }
+  learner_created: true
+- name: src/cinema/DTO/TicketReturnResponseDTO.java
+  visible: true
+  text: |
+    package cinema.DTO;
+
+    import cinema.Enities.Ticket;
+
+    public class TicketReturnResponseDTO {
+        private Ticket returned_ticket; //this notation is required by the task
+
+        public TicketReturnResponseDTO(Ticket returned_ticket) {
+            this.returned_ticket = returned_ticket;
+        }
+
+        public Ticket getReturned_ticket() {
+            return returned_ticket;
+        }
+
+        public void setReturned_ticket(Ticket returned_ticket) {
+            this.returned_ticket = returned_ticket;
+        }
+    }
+  learner_created: true
+- name: src/cinema/Exceptions/OrderWasNotFoundException.java
+  visible: true
+  text: |
+    package cinema.Exceptions;
+
+    import java.util.UUID;
+
+    public class OrderWasNotFoundException extends Exception{
+        public OrderWasNotFoundException() {
+            super("Wrong token!");
+        }
+    }
+  learner_created: true
+- name: src/cinema/Exceptions/TicketBuyingException.java
+  visible: true
+  text: |
+    package cinema.Exceptions;
+
+    import org.springframework.http.HttpStatus;
+    import org.springframework.web.bind.annotation.ResponseStatus;
+
+    @ResponseStatus(code = HttpStatus.BAD_REQUEST)
+    public class TicketBuyingException extends RuntimeException{
+        public TicketBuyingException (String error){
+            super(error);
+        }
+    }
+  learner_created: true
+- name: src/cinema/Enities/Ticket.java
+  visible: true
+  text: |
+    package cinema.Enities;
+
+    public class Ticket {
+        private transient final int HIGH_PRICE = 10;
+        private transient final int LOW_PRICE = 8;
+        private Integer row;
+        private Integer column;
+        private Integer price;
+
+        public Ticket(Integer row, Integer column) {
+            this.row = row;
+            this.column = column;
+            if (row <= 4) {
+                price = HIGH_PRICE;
+            } else {
+                price = LOW_PRICE;
+            }
+        }
+
+        public Integer getRow() {
+            return row;
+        }
+
+        public void setRow(Integer row) {
+            this.row = row;
+        }
+
+        public Integer getColumn() {
+            return column;
+        }
+
+        public void setColumn(Integer column) {
+            this.column = column;
+        }
+
+        public Integer getPrice() {
+            return price;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (!(o instanceof Ticket)) return false;
+
+            Ticket ticket = (Ticket) o;
+
+            if (!getRow().equals(ticket.getRow())) return false;
+            if (!getColumn().equals(ticket.getColumn())) return false;
+            return getPrice().equals(ticket.getPrice());
+        }
+
+        @Override
+        public int hashCode() {
+            int result = HIGH_PRICE;
+            result = 31 * result + LOW_PRICE;
+            result = 31 * result + getRow().hashCode();
+            result = 31 * result + getColumn().hashCode();
+            result = 31 * result + getPrice().hashCode();
+            return result;
+        }
+    }
+  learner_created: true
+- name: src/cinema/DTO/ResponseDTO.java
+  visible: true
+  text: |
+    package cinema.DTO;
+
+    import cinema.Enities.Ticket;
+    import cinema.Exceptions.MethodArgumentNullException;
+
+    import java.util.UUID;
+
+    public class ResponseDTO {
+        private final String token;
+        private final Ticket ticket;
+
+
+
+        public ResponseDTO(Integer row, Integer column, String id) throws MethodArgumentNullException {
+            if(row == null || column == null){
+                throw new MethodArgumentNullException("ResponseDTO was created has null fields.");
+            }
+            this.ticket = new Ticket(row, column);
+            this.token = id;
+        }
+
+        public Integer getRow() {
+            return ticket.getRow();
+        }
+
+        public void setRow(Integer row) {
+            this.ticket.setRow(row);
+        }
+
+        public Integer getColumn() {
+            return ticket.getColumn();
+        }
+
+        public void setColumn(Integer column) {
+            this.ticket.setColumn(column);
+        }
+
+        public Integer getPrice() {
+            return ticket.getPrice();
+        }
+
+        public String getId() {
+            return token;
+        }
+    }
+  learner_created: true
+- name: src/cinema/Exceptions/MethodArgumentNullException.java
+  visible: true
+  text: |
+    package cinema.Exceptions;
+
+    public class MethodArgumentNullException extends Exception{
+        public MethodArgumentNullException(String message) {
+            super(message);
+        }
+    }
+  learner_created: true
+- name: src/cinema/CinemaService.java
+  visible: true
+  text: |+
+    package cinema;
+
+    import cinema.DTO.ResponseDTO;
+    import cinema.DTO.RoomDTO;
+    import cinema.DTO.TicketReturnResponseDTO;
+    import cinema.Enities.Room;
+    import cinema.Enities.Seat;
+    import cinema.Enities.Ticket;
+    import cinema.Exceptions.MethodArgumentNullException;
+    import cinema.Exceptions.OrderWasNotFoundException;
+    import cinema.Exceptions.TicketBuyingException;
+    import org.springframework.beans.factory.annotation.Autowired;
+
+    import java.util.HashMap;
+    import java.util.UUID;
+
+    public class CinemaService {
+
+        private Room room;
+        private final HashMap<String, Ticket> orders;
+
+
+        public CinemaService(@Autowired Room room) {
+            this.room = room;
+            orders = new HashMap<>();
+        }
+
+        public void addOrder(String id, Ticket ticket) throws MethodArgumentNullException {
+            if (id == null || ticket == null) {
+                throw new MethodArgumentNullException("The pair 'UUID/ticket' you try to create has null.");
+            }
+            orders.put(id, ticket);
+        }
+
+        public void deleteOrder(String id) throws MethodArgumentNullException {
+            if (id == null) {
+                throw new MethodArgumentNullException("The id you try to find is null.");
+            }
+            Ticket ticket = orders.get(id);
+            orders.remove(id);
+            room.addSeat(new Seat(ticket.getRow(), ticket.getColumn()));
+        }
+
+        public void addAvailableSeat(int row, int column){
+            room.addSeat(new Seat(row, column));
+        }
+
+        public ResponseDTO bookSeat(int row, int column) throws MethodArgumentNullException {
+            Seat bookingSeat = new Seat(row, column);
+            if(room.getAvailableSeats().contains(bookingSeat)){
+                room.removeSeat(bookingSeat);
+                UUID id = UUID.randomUUID();
+                addOrder(id.toString(),new Ticket(row, column));
+                return new ResponseDTO(row, column, id.toString());
+            }
+            if (row > room.getRowsNumber() | column > room.getColumnsNumber() | row < 1 | column < 1) {
+                throw new TicketBuyingException("The number of a row or a column is out of bounds!");
+            }
+
+            throw new TicketBuyingException("The ticket has been already purchased!");
+        }
+
+        public TicketReturnResponseDTO unbookSeat(String id) throws OrderWasNotFoundException {
+            if (!orders.containsKey(id)) {
+                throw new OrderWasNotFoundException();
+            }
+            TicketReturnResponseDTO response = new TicketReturnResponseDTO(orders.get(id));
+            Seat seat = new Seat(response.getReturned_ticket().getRow(), response.getReturned_ticket().getColumn());
+            room.addSeat(seat);
+            return response;
+        }
+
+        public RoomDTO getRoomDTO(){
+            return new RoomDTO(room);
+        }
+
+        public HashMap<String, Ticket> getTicketIDs() {
+            return new HashMap<>(orders);
+        }
+    }
+
+  learner_created: true
+- name: src/cinema/Enities/Room.java
+  visible: true
+  text: |
+    package cinema.Enities;
+
+    import java.util.ArrayList;
+
+    public class Room {
+        private final ArrayList<Seat> availableSeats = new ArrayList<>();
+        private int columnsNumber;
+        private int rowsNumber;
+
+        public Room(int columnsNumber, int rowsNumber) {
+            this.columnsNumber = columnsNumber;
+            this.rowsNumber = rowsNumber;
+            for (int i = 1; i<=rowsNumber;i++){
+                for (int j = 1; j<=columnsNumber;j++){
+                    addSeat(new Seat(i,j));
+                }
+            }
+        }
+
+        public ArrayList<Seat> getAvailableSeats() {
+            return new ArrayList<>(availableSeats);
+        }
+
+        public int getColumnsNumber() {
+            return columnsNumber;
+        }
+
+        public int getRowsNumber() {
+            return rowsNumber;
+        }
+
+        public void addSeat(Seat seat){
+            availableSeats.add(seat);
+        }
+
+        public boolean removeSeat(Seat seat){ return availableSeats.remove(seat);}
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (!(o instanceof Room)) return false;
+
+            Room room = (Room) o;
+
+            if (getColumnsNumber() != room.getColumnsNumber()) return false;
+            if (getRowsNumber() != room.getRowsNumber()) return false;
+            return getAvailableSeats() != null ? getAvailableSeats().equals(room.getAvailableSeats()) : room.getAvailableSeats() == null;
+        }
+
+        @Override
+        public int hashCode() {
+            int result = getAvailableSeats() != null ? getAvailableSeats().hashCode() : 0;
+            result = 31 * result + getColumnsNumber();
+            result = 31 * result + getRowsNumber();
+            return result;
+        }
+    }
+  learner_created: true
+- name: src/cinema/DTO/ExceptionResponseDTO.java
+  visible: true
+  text: |
+    package cinema.DTO;
+
+    public class ExceptionResponseDTO {
+        private String error;
+
+        public ExceptionResponseDTO(String message)
+        {
+            super();
+            error = message;
+        }
+    }
+  learner_created: true
+- name: src/cinema/Enities/Seat.java
+  visible: true
+  text: |
+    package cinema.Enities;
+
+    public class Seat {
+        private int row;
+        private int column;
+        private int price;
+
+        public Seat(int row, int column) {
+            this.row = row;
+            this.column = column;
+            if (row <= 4) {
+                this.price = 10;
+            }
+            else {
+                this.price = 8;
+            }
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (!(o instanceof Seat)) return false;
+
+            Seat seat = (Seat) o;
+
+            if (row != seat.row) return false;
+            return column == seat.column;
+        }
+
+        @Override
+        public int hashCode() {
+            int result = row;
+            result = 31 * result + column;
+            return result;
+        }
+    }
+  learner_created: true
+- name: src/cinema/DTO/TicketReturnRequestDTO.java
+  visible: true
+  text: |
+    package cinema.DTO;
+
+    import java.util.UUID;
+
+    public class TicketReturnRequestDTO {
+        private String token;
+
+        public TicketReturnRequestDTO(String token) {
+            this.token = token;
+        }
+
+        public String getToken() {
+            return token;
+        }
+
+        public void setToken(String token) {
+            this.token = token;
+        }
+
+        TicketReturnRequestDTO() {}
+    }
+  learner_created: true
+- name: src/cinema/UserInfo.java
+  visible: true
+  text: |
+    package cinema;
+
+    public class UserInfo {
+        private Integer row;
+        private Integer column;
+
+        public Integer getRow() {
+            return row;
+        }
+
+        public void setRow(Integer row) {
+            this.row = row;
+        }
+
+        public Integer getColumn() {
+            return column;
+        }
+
+        public void setColumn(Integer column) {
+            this.column = column;
+        }
+        UserInfo() {}
+    }
+  learner_created: true
+- name: src/cinema/DTO/RoomDTO.java
+  visible: true
+  text: |
+    package cinema.DTO;
+
+    import cinema.Enities.Room;
+    import cinema.Enities.Seat;
+
+    import java.util.ArrayList;
+
+    public class RoomDTO {
+        private final int total_rows; //this notation is required by the task
+        private final int total_columns; //this notation is required by the task
+        private final ArrayList<Seat> available_seats;
+
+        public RoomDTO(Room room) {
+            this.total_rows = room.getRowsNumber();
+            this.total_columns = room.getColumnsNumber();
+            this.available_seats = room.getAvailableSeats();
+        }
+
+        public ArrayList<Seat> getAvailable_seats() {
+            return new ArrayList<>(available_seats);
+        }
+    }
+  learner_created: true
 feedback_link: https://hyperskill.org/learn/step/13378#comment
 status: Unchecked
 record: -1

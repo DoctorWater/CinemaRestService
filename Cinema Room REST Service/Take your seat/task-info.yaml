@@ -336,46 +336,24 @@ files:
         }
     }
   learner_created: true
-- name: src/cinema/WholeRoomDTO.java
-  visible: true
-  text: |
-    package cinema;
-
-    import java.util.ArrayList;
-
-    public class ResponseDTO {
-        private final int total_rows;
-        private final int total_columns;
-        private final ArrayList<Seat> available_seats;
-
-        public ResponseDTO(Room room) {
-            this.total_rows = room.getRowsNumber();
-            this.total_columns = room.getColumnsNumber();
-            this.available_seats = room.getAvailableSeats();
-        }
-    }
-  learner_created: true
-- name: src/cinema/RequestDTO.java
-  visible: true
-  learner_created: true
 - name: src/cinema/TicketBuyingException.java
   visible: true
   learner_created: true
 - name: src/cinema/UserInfo.java
   visible: true
   learner_created: true
+- name: src/cinema/DTO/ResponseDTO.java
+  visible: true
+  learner_created: true
+- name: src/cinema/DTO/RoomDTO.java
+  visible: true
+  learner_created: true
+- name: src/cinema/DTO/ExceptionResponseDTO.java
+  visible: true
+  learner_created: true
 feedback_link: https://hyperskill.org/learn/step/13376#comment
-status: Failed
+status: Solved
 feedback:
-  message: |-
-    Wrong answer in test #4
-
-    POST /purchase should respond with status code 400, responded: 200
-
-    Response body:
-
-    {
-      &quot;error&quot;: &quot;The ticket has been already purchased!&quot;
-    }
-  time: Tue, 25 Oct 2022 17:47:59 UTC
-record: -1
+  message: Congratulations!
+  time: Thu, 03 Nov 2022 23:49:01 UTC
+record: 2

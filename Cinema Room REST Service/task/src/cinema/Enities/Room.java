@@ -1,4 +1,4 @@
-package cinema;
+package cinema.Enities;
 
 import java.util.ArrayList;
 
