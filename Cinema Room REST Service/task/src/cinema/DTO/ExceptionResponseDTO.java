@@ -1,11 +1,14 @@
 package cinema.DTO;
 
 public class ExceptionResponseDTO {
-    private String error;
+    private final String error;
 
     public ExceptionResponseDTO(String message)
     {
-        super();
         error = message;
+    }
+
+    public ExceptionResponseDTO(Exception e){
+        error = e.getMessage();
     }
 }
