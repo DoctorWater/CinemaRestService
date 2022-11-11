@@ -854,33 +854,6 @@ files:
         TicketReturnRequestDTO() {}
     }
   learner_created: true
-- name: src/cinema/UserInfo.java
-  visible: true
-  text: |
-    package cinema;
-
-    public class UserInfo {
-        private Integer row;
-        private Integer column;
-
-        public Integer getRow() {
-            return row;
-        }
-
-        public void setRow(Integer row) {
-            this.row = row;
-        }
-
-        public Integer getColumn() {
-            return column;
-        }
-
-        public void setColumn(Integer column) {
-            this.column = column;
-        }
-        UserInfo() {}
-    }
-  learner_created: true
 - name: src/cinema/DTO/RoomDTO.java
   visible: true
   text: |
@@ -914,6 +887,36 @@ files:
   visible: true
   learner_created: true
 - name: src/cinema/Exceptions/WrongPasswordException.java
+  visible: true
+  learner_created: true
+- name: src/cinema/DTO/UserInfoDTO.java
+  visible: true
+  text: |
+    package cinema;
+
+    public class UserInfo {
+        private Integer row;
+        private Integer column;
+
+        public Integer getRow() {
+            return row;
+        }
+
+        public void setRow(Integer row) {
+            this.row = row;
+        }
+
+        public Integer getColumn() {
+            return column;
+        }
+
+        public void setColumn(Integer column) {
+            this.column = column;
+        }
+        UserInfo() {}
+    }
+  learner_created: true
+- name: src/cinema/Exceptions/ProvidedException.java
   visible: true
   learner_created: true
 feedback_link: https://hyperskill.org/learn/step/13378#comment

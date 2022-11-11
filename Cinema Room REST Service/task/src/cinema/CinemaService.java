@@ -48,7 +48,7 @@ public class CinemaService {
         room.addSeat(new Seat(row, column));
     }
 
-    public ResponseDTO bookSeat(int row, int column) throws MethodArgumentNullException {
+    public ResponseDTO bookSeat(int row, int column) throws MethodArgumentNullException, TicketBuyingException {
         Seat bookingSeat = new Seat(row, column);
         if (room.getAvailableSeats().contains(bookingSeat)) {
             room.removeSeat(bookingSeat);

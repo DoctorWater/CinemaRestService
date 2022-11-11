@@ -1,6 +1,6 @@
-package cinema;
+package cinema.DTO;
 
-public class UserInfo {
+public class UserInfoDTO {
     private Integer row;
     private Integer column;
 
@@ -19,5 +19,5 @@ public class UserInfo {
     public void setColumn(Integer column) {
         this.column = column;
     }
-    UserInfo() {}
+    UserInfoDTO() {}
 }
